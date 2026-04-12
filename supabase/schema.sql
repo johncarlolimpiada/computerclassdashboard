@@ -44,7 +44,7 @@ CREATE TABLE public.apps (
 
 CREATE TABLE public.settings (
   id INT PRIMARY KEY DEFAULT 1,
-  background_url TEXT NOT NULL DEFAULT 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=2070&auto=format&fit=crop'
+  background_url TEXT NOT NULL DEFAULT 'https://i.imgur.com/G20z4MI.jpg'
 );
 
 -- Give RLS Policies (Everything can be read by authenticated users, only admins can write)
