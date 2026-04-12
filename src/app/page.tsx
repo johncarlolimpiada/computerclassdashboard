@@ -44,7 +44,19 @@ export default async function DashboardPage() {
             <h1 style={{ margin: 0, textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>Computer Class Dashboard</h1>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <span style={{ fontWeight: 500, opacity: 0.9 }}>{user?.email}</span>
+            {user && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'rgba(255,255,255,0.1)', padding: '0.25rem 0.75rem 0.25rem 0.25rem', borderRadius: '50px', border: '1px solid rgba(255,255,255,0.2)' }}>
+                <img 
+                  src={user.user_metadata?.avatar_url || user.user_metadata?.picture || `https://ui-avatars.com/api/?name=${user.email}&background=random`} 
+                  alt="Profile" 
+                  style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }} 
+                  referrerPolicy="no-referrer"
+                />
+                <span style={{ fontWeight: 600, fontSize: '0.95rem' }}>
+                  {user.user_metadata?.full_name || user.user_metadata?.name || user.email}
+                </span>
+              </div>
+            )}
             {isAdmin && (
               <Link href="/admin" className="btn-primary" style={{ backgroundColor: 'rgba(255,255,255,0.2)', color: 'white', textDecoration: 'none' }}>
                 Admin Panel
