@@ -9,6 +9,7 @@ export async function GET(request: Request) {
   const code = searchParams.get('code')
   
   if (code) {
+    console.log('Exchange code for session:', code)
     const cookieStore = await cookies()
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -23,19 +24,24 @@ export async function GET(request: Request) {
               cookiesToSet.forEach(({ name, value, options }) =>
                 cookieStore.set(name, value, options)
               )
-            } catch {
-              // The `setAll` method was called from a Server Component.
-              // This can be ignored if you have middleware refreshing
-              // user sessions.
+            } catch (err) {
+              console.error('Error setting cookies in callback:', err)
             }
           },
         },
       }
     )
     
-    await supabase.auth.exchangeCodeForSession(code)
+    const { error } = await supabase.auth.exchangeCodeForSession(code)
+    if (error) {
+      console.error('Auth error in callback:', error.message)
+      return NextResponse.redirect(`${getURL()}/login?error=${encodeURIComponent(error.message)}`)
+    }
+  } else {
+    console.warn('No code found in callback URL')
   }
 
   // URL to redirect to after sign in process completes
-  return NextResponse.redirect(`${origin}/`)
+  console.log('Redirecting to origin:', origin)
+  return NextResponse.redirect(`${getURL()}/`)
 }
