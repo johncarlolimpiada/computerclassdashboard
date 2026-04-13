@@ -42,6 +42,7 @@ export async function GET(request: Request) {
   }
 
   // URL to redirect to after sign in process completes
-  console.log('Redirecting to origin:', origin)
-  return NextResponse.redirect(`${getURL()}/`)
+  // We construct a clean URL to ensure the 'code' parameter is removed from the browser address bar
+  const nextUrl = new URL('/', getURL())
+  return NextResponse.redirect(nextUrl)
 }
