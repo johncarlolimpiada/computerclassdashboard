@@ -1,6 +1,8 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
+import { getURL } from '@/lib/utils/url'
+
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
@@ -35,5 +37,5 @@ export async function GET(request: Request) {
   }
 
   // URL to redirect to after sign in process completes
-  return NextResponse.redirect(`${origin}/`)
+  return NextResponse.redirect(getURL())
 }

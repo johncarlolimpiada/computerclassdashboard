@@ -4,6 +4,8 @@ import { createClient } from '@/lib/supabase/client'
 import { Gamepad2 } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import { getURL } from '@/lib/utils/url'
+
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false)
@@ -86,7 +88,7 @@ export default function LoginPage() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: `${getURL()}auth/callback`,
         queryParams: {
           hd: 'felice.ed.jp'
         }
