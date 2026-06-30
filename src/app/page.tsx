@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { Category, AppLink, Settings } from '@/types'
 import DashboardClient from './DashboardClient'
+import WordQuiz from './WordQuiz'
 import Link from 'next/link'
 
 export default async function DashboardPage() {
@@ -46,6 +47,7 @@ export default async function DashboardPage() {
             <h1 style={{ margin: 0, textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>Computer Class Dashboard</h1>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <WordQuiz />
             {user && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'rgba(255,255,255,0.1)', padding: '0.25rem 0.75rem 0.25rem 0.25rem', borderRadius: '50px', border: '1px solid rgba(255,255,255,0.2)' }}>
                 <img 
