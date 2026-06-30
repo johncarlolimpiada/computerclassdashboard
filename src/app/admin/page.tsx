@@ -20,9 +20,11 @@ export default async function AdminPage() {
 
   if (!isAdmin) return <div className="glass-panel" style={{ padding: '2rem', margin: '2rem' }}>Access Denied. Admins only.</div>
 
-  const { data: settingsData } = await supabase.from('settings').select('*').limit(1).single()
-  const { data: categoriesData } = await supabase.from('categories').select('*').order('order_idx', { ascending: true })
-  const { data: appsData } = await supabase.from('apps').select('*').order('order_idx', { ascending: true })
+  const [{ data: settingsData }, { data: categoriesData }, { data: appsData }] = await Promise.all([
+    supabase.from('settings').select('*').limit(1).single(),
+    supabase.from('categories').select('*').order('order_idx', { ascending: true }),
+    supabase.from('apps').select('*').order('order_idx', { ascending: true }),
+  ])
 
   return (
     <div style={{ padding: '2rem 1rem', maxWidth: '1000px', margin: '0 auto' }}>

@@ -3,31 +3,33 @@ import { Category, AppLink, Settings } from '@/types'
 import DashboardClient from './DashboardClient'
 import Link from 'next/link'
 
-export const revalidate = 0 
-
 export default async function DashboardPage() {
   const supabase = await createClient()
 
-  const { data: settingsData } = await supabase.from('settings').select('*').limit(1).single()
+  const userPromise = supabase.auth.getUser()
+  const settingsPromise = supabase.from('settings').select('*').limit(1).single()
+  const categoriesPromise = supabase.from('categories').select('*').order('order_idx', { ascending: true })
+  const appsPromise = supabase.from('apps').select('*').order('order_idx', { ascending: true })
+
+  // Start profile check as soon as user resolves, overlapping with DB queries
+  const profilePromise = userPromise.then(({ data: { user } }) => {
+    if (!user || user.email === 'john.limpiada@felice.ed.jp') return null
+    return supabase.from('profiles').select('role').eq('id', user.id).single()
+  })
+
+  const [
+    { data: settingsData },
+    { data: categoriesData },
+    { data: appsData },
+    { data: { user } },
+    profileResult,
+  ] = await Promise.all([settingsPromise, categoriesPromise, appsPromise, userPromise, profilePromise])
+
   const settings = settingsData as Settings | null
-
-  const { data: categoriesData } = await supabase.from('categories').select('*').order('order_idx', { ascending: true })
   const categories = categoriesData as Category[] || []
-
-  const { data: appsData } = await supabase.from('apps').select('*').order('order_idx', { ascending: true })
   const apps = appsData as AppLink[] || []
 
-  const { data: { user } } = await supabase.auth.getUser()
-
-  let isAdmin = false
-  if (user) {
-    if (user.email === 'john.limpiada@felice.ed.jp') {
-        isAdmin = true
-    } else {
-        const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
-        isAdmin = profile?.role === 'admin'
-    }
-  }
+  const isAdmin = user?.email === 'john.limpiada@felice.ed.jp' || profileResult?.data?.role === 'admin'
 
   return (
     <div style={{ 

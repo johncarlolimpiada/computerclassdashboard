@@ -5,27 +5,39 @@ import { Gamepad2 } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { getURL } from '@/lib/utils/url'
-
+import Script from 'next/script'
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
-  
-  const GOOGLE_CLIENT_ID = '313123590702-lb7fjsbbqt83t3ljocvpf5la58uqmir4.apps.googleusercontent.com'
 
+  const GOOGLE_CLIENT_ID = '313123590702-lb7fjsbbqt83t3ljocvpf5la58uqmir4.apps.googleusercontent.com'
   const nonceRef = useRef<string | undefined>(undefined)
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('error') === 'unauthorized_domain') {
+      setError('Please use your @felice.ed.jp workspace account.')
+    }
+  }, [])
 
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search)
-      if (params.get('error') === 'unauthorized_domain') {
-        setError('Please use your @felice.ed.jp workspace account.')
-      }
+  const handleGoogleScriptLoad = async () => {
+    const google = (window as any).google
+    if (!google) return
 
-      // Configure Google One Tap callback
-      ;(window as any).handleGoogleCredential = async (response: any) => {
+    const nonce = btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(32))))
+    const encoder = new TextEncoder()
+    const encodedNonce = encoder.encode(nonce)
+    const hashBuffer = await crypto.subtle.digest('SHA-256', encodedNonce)
+    const hashArray = Array.from(new Uint8Array(hashBuffer))
+    const hashedNonce = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
+
+    nonceRef.current = nonce
+
+    google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      callback: async (response: any) => {
         setLoading(true)
         const supabase = createClient()
         const { error } = await supabase.auth.signInWithIdToken({
@@ -33,7 +45,6 @@ export default function LoginPage() {
           token: response.credential,
           nonce: nonceRef.current,
         })
-        
         if (error) {
           setError(error.message)
           setLoading(false)
@@ -41,45 +52,13 @@ export default function LoginPage() {
           router.push('/')
           router.refresh()
         }
-      }
-
-      // Inject Google SDK for One Tap auto-login
-      const script = document.createElement('script')
-      script.src = 'https://accounts.google.com/gsi/client'
-      script.async = true
-      script.defer = true
-      script.onload = async () => {
-        const google = (window as any).google
-        if (google) {
-          // Generate nonce for Supabase auth verification
-          const nonce = btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(32))));
-          const encoder = new TextEncoder();
-          const encodedNonce = encoder.encode(nonce);
-          const hashBuffer = await crypto.subtle.digest('SHA-256', encodedNonce);
-          const hashArray = Array.from(new Uint8Array(hashBuffer));
-          const hashedNonce = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
-          
-          nonceRef.current = nonce;
-
-          google.accounts.id.initialize({
-            client_id: GOOGLE_CLIENT_ID,
-            callback: (window as any).handleGoogleCredential,
-            hosted_domain: 'felice.ed.jp', // Ensures workspace boundary
-            auto_select: true, // Enables auto-login attempt
-            nonce: hashedNonce,
-          })
-          google.accounts.id.prompt()
-        }
-      }
-      document.body.appendChild(script)
-
-      return () => {
-        if (document.body.contains(script)) {
-          document.body.removeChild(script)
-        }
-      }
-    }
-  }, [router])
+      },
+      hosted_domain: 'felice.ed.jp',
+      auto_select: true,
+      nonce: hashedNonce,
+    })
+    google.accounts.id.prompt()
+  }
 
   const handleLogin = async () => {
     setLoading(true)
@@ -102,13 +81,19 @@ export default function LoginPage() {
   }
 
   return (
-    <div style={{ 
-      display: 'flex', 
-      justifyContent: 'center', 
-      alignItems: 'center', 
-      minHeight: '100vh', 
+    <>
+    <Script
+      src="https://accounts.google.com/gsi/client"
+      strategy="afterInteractive"
+      onLoad={handleGoogleScriptLoad}
+    />
+    <div style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '100vh',
       padding: '1rem',
-      fontFamily: 'Inter, system-ui, sans-serif' 
+      fontFamily: 'Inter, system-ui, sans-serif'
     }}>
       <div style={{ 
         width: '100%', 
@@ -190,5 +175,6 @@ export default function LoginPage() {
 
       </div>
     </div>
+    </>
   )
 }
