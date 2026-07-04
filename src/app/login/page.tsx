@@ -3,14 +3,12 @@
 import { createClient } from '@/lib/supabase/client'
 import { Gamepad2 } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
-import { useRouter } from 'next/navigation'
 import { getURL } from '@/lib/utils/url'
 import Script from 'next/script'
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const router = useRouter()
 
   const GOOGLE_CLIENT_ID = '313123590702-lb7fjsbbqt83t3ljocvpf5la58uqmir4.apps.googleusercontent.com'
   const nonceRef = useRef<string | undefined>(undefined)
@@ -49,8 +47,7 @@ export default function LoginPage() {
           setError(error.message)
           setLoading(false)
         } else {
-          router.push('/')
-          router.refresh()
+          window.location.href = '/'
         }
       },
       hosted_domain: 'felice.ed.jp',
