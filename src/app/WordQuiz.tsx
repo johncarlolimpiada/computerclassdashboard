@@ -54,22 +54,24 @@ export default function WordQuiz() {
   const pick = (idx: number) => {
     if (picked !== null) return
     setPicked(idx)
-    const newAnswers = [...collectedAnswers, idx]
+  }
 
-    setTimeout(() => {
-      if (step < 2) {
-        setStep(s => s + 1)
-        setPicked(null)
-        setCollectedAnswers(newAnswers)
-      } else {
-        const score = newAnswers.filter((a, i) => a === questions[i].answer).length
-        localStorage.setItem(STORAGE_DATE, todayKey())
-        localStorage.setItem(STORAGE_SCORE, String(score))
-        setFinalScore(score)
-        setCollectedAnswers(newAnswers)
-        setPhase('done')
-      }
-    }, 1400)
+  const advance = () => {
+    if (picked === null) return
+    const newAnswers = [...collectedAnswers, picked]
+
+    if (step < 2) {
+      setStep(s => s + 1)
+      setPicked(null)
+      setCollectedAnswers(newAnswers)
+    } else {
+      const score = newAnswers.filter((a, i) => a === questions[i].answer).length
+      localStorage.setItem(STORAGE_DATE, todayKey())
+      localStorage.setItem(STORAGE_SCORE, String(score))
+      setFinalScore(score)
+      setCollectedAnswers(newAnswers)
+      setPhase('done')
+    }
   }
 
   const q = questions[step]
@@ -208,6 +210,16 @@ export default function WordQuiz() {
                     )
                   })}
                 </div>
+
+                {picked !== null && (
+                  <button
+                    onClick={advance}
+                    className="btn-primary"
+                    style={{ width: '100%', marginTop: '1rem' }}
+                  >
+                    {step < 2 ? 'Next question →' : 'End quiz'}
+                  </button>
+                )}
               </>
             )}
 

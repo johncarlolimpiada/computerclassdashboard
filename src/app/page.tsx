@@ -3,6 +3,7 @@ import { Category, AppLink, Settings } from '@/types'
 import DashboardClient from './DashboardClient'
 import WordQuiz from './WordQuiz'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -29,6 +30,8 @@ export default async function DashboardPage() {
   const settings = settingsData as Settings | null
   const categories = categoriesData as Category[] || []
   const apps = appsData as AppLink[] || []
+
+  if (!user) redirect('/login')
 
   const isAdmin = user?.email === 'john.limpiada@felice.ed.jp' || profileResult?.data?.role === 'admin'
 
