@@ -6,9 +6,19 @@ import { useState, useEffect, useRef } from 'react'
 import { getURL } from '@/lib/utils/url'
 import Script from 'next/script'
 
+// Subset of GIS PromptMomentNotification we probe. All optional: under FedCM the
+// isNotDisplayed()/getNotDisplayedReason() pair is deprecated and may be absent.
+type PromptNotification = {
+  isNotDisplayed?: () => boolean
+  getNotDisplayedReason?: () => string
+  isSkippedMoment?: () => boolean
+  getSkippedReason?: () => string
+}
+
 export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [oneTapBlocked, setOneTapBlocked] = useState(false)
 
   const GOOGLE_CLIENT_ID = '313123590702-lb7fjsbbqt83t3ljocvpf5la58uqmir4.apps.googleusercontent.com'
   const nonceRef = useRef<string | undefined>(undefined)
@@ -50,11 +60,22 @@ export default function LoginPage() {
           window.location.href = '/'
         }
       },
-      hosted_domain: 'felice.ed.jp',
+      hd: 'felice.ed.jp',
       auto_select: true,
       nonce: hashedNonce,
     })
-    google.accounts.id.prompt()
+    google.accounts.id.prompt((notification: PromptNotification) => {
+      // Google suppresses One Tap in cases we can't control: exponential cooldown
+      // after a manual dismissal (2h -> 1d -> 1w -> 4w), no active Google session,
+      // or a global opt-out. Fall back to the redirect button in all of them.
+      const reason =
+        (notification.isNotDisplayed?.() && notification.getNotDisplayedReason?.()) ||
+        (notification.isSkippedMoment?.() && notification.getSkippedReason?.())
+      if (reason) {
+        console.warn('One Tap unavailable:', reason)
+        setOneTapBlocked(true)
+      }
+    })
   }
 
   const handleLogin = async () => {
@@ -82,7 +103,7 @@ export default function LoginPage() {
     <Script
       src="https://accounts.google.com/gsi/client"
       strategy="afterInteractive"
-      onLoad={handleGoogleScriptLoad}
+      onReady={() => { void handleGoogleScriptLoad() }}
     />
     <div style={{
       display: 'flex',
@@ -169,6 +190,12 @@ export default function LoginPage() {
             </svg>
           </div>
         </button>
+
+        {oneTapBlocked && (
+          <p style={{ color: '#64748b', fontSize: '0.8rem', marginTop: '1rem', marginBottom: 0 }}>
+            One-tap sign-in isn&apos;t available here — use the button above.
+          </p>
+        )}
 
       </div>
     </div>
