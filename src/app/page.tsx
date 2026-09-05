@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { Category, AppLink, Settings } from '@/types'
 import DashboardClient from './DashboardClient'
 import WordQuiz from './WordQuiz'
+import InstallBanner from './InstallBanner'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 
@@ -45,6 +46,7 @@ export default async function DashboardPage() {
       padding: '2rem 1rem'
     }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+        <InstallBanner />
         <header className="glass-panel" style={{ padding: '1.5rem', marginBottom: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <h1 style={{ margin: 0, textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>Computer Class Dashboard</h1>
