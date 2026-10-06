@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { getDailyQuestions, type QuizQuestion } from '@/data/quiz-questions'
 
 type Phase = 'idle' | 'quiz' | 'done'
@@ -34,11 +34,35 @@ export default function WordQuiz() {
   const [finalScore, setFinalScore] = useState<number | null>(null)
   const [questions] = useState<QuizQuestion[]>(() => getDailyQuestions(3))
 
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const dialogRef = useRef<HTMLDivElement>(null)
+  const closeBtnRef = useRef<HTMLButtonElement>(null)
+  const titleId = 'word-quiz-title'
+
   useEffect(() => {
     if (localStorage.getItem(STORAGE_DATE) === todayKey()) {
       setFinalScore(Number(localStorage.getItem(STORAGE_SCORE)))
     }
   }, [])
+
+  const closeQuiz = useCallback(() => {
+    setPhase('idle')
+    triggerRef.current?.focus()
+  }, [])
+
+  useEffect(() => {
+    if (phase === 'idle') return
+    closeBtnRef.current?.focus()
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        closeQuiz()
+      }
+    }
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [phase, closeQuiz])
 
   const openQuiz = () => {
     if (finalScore !== null) {
@@ -61,7 +85,7 @@ export default function WordQuiz() {
     const newAnswers = [...collectedAnswers, picked]
 
     if (step < 2) {
-      setStep(s => s + 1)
+      setStep((s) => s + 1)
       setPicked(null)
       setCollectedAnswers(newAnswers)
     } else {
@@ -79,13 +103,14 @@ export default function WordQuiz() {
 
   return (
     <>
-      {/* ── Header trigger button ── */}
       <button
+        ref={triggerRef}
+        type="button"
         onClick={openQuiz}
         style={{
-          background: done ? 'rgba(34, 197, 94, 0.2)' : 'rgba(99, 102, 241, 0.2)',
+          background: done ? 'var(--success-muted)' : 'rgba(99, 102, 241, 0.2)',
           border: `1px solid ${done ? 'rgba(34, 197, 94, 0.45)' : 'rgba(99, 102, 241, 0.45)'}`,
-          borderRadius: '50px',
+          borderRadius: 'var(--radius-pill)',
           padding: '0.3rem 0.9rem',
           color: 'white',
           cursor: 'pointer',
@@ -102,47 +127,65 @@ export default function WordQuiz() {
         {done ? `${scoreEmoji(finalScore!)} ${finalScore}/3` : '📝 Word Quiz'}
       </button>
 
-      {/* ── Overlay ── */}
       {phase !== 'idle' && (
         <div
-          onClick={() => setPhase('idle')}
+          onClick={closeQuiz}
           style={{
             position: 'fixed',
             inset: 0,
             zIndex: 1000,
             background: 'rgba(0,0,0,0.45)',
             display: 'flex',
-            alignItems: 'flex-start',
+            alignItems: 'center',
             justifyContent: 'center',
-            paddingTop: '80px',
-            paddingLeft: '1rem',
-            paddingRight: '1rem',
+            padding: '1rem',
           }}
         >
           <div
+            ref={dialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={titleId}
             className="glass-panel"
-            onClick={e => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
             style={{ width: '100%', maxWidth: '440px', padding: '1.5rem' }}
           >
-            {/* Card header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-              <span style={{ fontWeight: 700, fontSize: '0.95rem', color: 'rgba(255,255,255,0.85)' }}>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '1.25rem',
+              }}
+            >
+              <span
+                id={titleId}
+                style={{ fontWeight: 700, fontSize: '0.95rem', color: 'rgba(255,255,255,0.85)' }}
+              >
                 {phase === 'quiz' ? `Question ${step + 1} of 3` : "Today's Results"}
               </span>
               <button
-                onClick={() => setPhase('idle')}
-                style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: '1.1rem', lineHeight: 1, padding: '0.25rem' }}
+                ref={closeBtnRef}
+                type="button"
+                onClick={closeQuiz}
+                className="icon-btn"
                 aria-label="Close"
               >
                 ✕
               </button>
             </div>
 
-            {/* ── Quiz phase ── */}
             {phase === 'quiz' && (
               <>
-                {/* Progress bar */}
-                <div style={{ height: '4px', background: 'rgba(255,255,255,0.12)', borderRadius: '2px', marginBottom: '1.25rem', overflow: 'hidden' }}>
+                <div
+                  style={{
+                    height: '4px',
+                    background: 'rgba(255,255,255,0.12)',
+                    borderRadius: '2px',
+                    marginBottom: '1.25rem',
+                    overflow: 'hidden',
+                  }}
+                >
                   <div
                     style={{
                       height: '100%',
@@ -165,7 +208,7 @@ export default function WordQuiz() {
                     const revealed = picked !== null
 
                     let bg = 'rgba(255,255,255,0.06)'
-                    let border = '1px solid rgba(255,255,255,0.13)'
+                    let border = '1px solid rgba(255, 255, 255, 0.13)'
                     let textColor = 'white'
 
                     if (revealed) {
@@ -183,12 +226,13 @@ export default function WordQuiz() {
                     return (
                       <button
                         key={idx}
+                        type="button"
                         onClick={() => pick(idx)}
                         disabled={revealed}
                         style={{
                           background: bg,
                           border,
-                          borderRadius: '8px',
+                          borderRadius: 'var(--radius-control)',
                           padding: '0.65rem 1rem',
                           color: textColor,
                           cursor: revealed ? 'default' : 'pointer',
@@ -212,32 +256,37 @@ export default function WordQuiz() {
                 </div>
 
                 {picked !== null && (
-                  <button
-                    onClick={advance}
-                    className="btn-primary"
-                    style={{ width: '100%', marginTop: '1rem' }}
-                  >
+                  <button type="button" onClick={advance} className="btn-primary" style={{ width: '100%', marginTop: '1rem' }}>
                     {step < 2 ? 'Next question →' : 'End quiz'}
                   </button>
                 )}
               </>
             )}
 
-            {/* ── Results phase ── */}
             {phase === 'done' && finalScore !== null && (
               <div style={{ textAlign: 'center', padding: '0.75rem 0 0.5rem' }}>
                 <div style={{ fontSize: '3rem', marginBottom: '0.6rem' }}>{scoreEmoji(finalScore)}</div>
-                <div style={{ fontSize: '2.25rem', fontWeight: 800, marginBottom: '0.4rem', letterSpacing: '-0.5px' }}>
+                <div
+                  style={{
+                    fontSize: '2.25rem',
+                    fontWeight: 800,
+                    marginBottom: '0.4rem',
+                    letterSpacing: '-0.5px',
+                  }}
+                >
                   {finalScore} / 3
                 </div>
-                <p style={{ color: 'rgba(255,255,255,0.65)', marginBottom: '1.5rem', fontSize: '0.9rem', lineHeight: 1.5 }}>
+                <p
+                  style={{
+                    color: 'rgba(255,255,255,0.65)',
+                    marginBottom: '1.5rem',
+                    fontSize: '0.9rem',
+                    lineHeight: 1.5,
+                  }}
+                >
                   {scoreMessage(finalScore)}
                 </p>
-                <button
-                  onClick={() => setPhase('idle')}
-                  className="btn-primary"
-                  style={{ width: '100%' }}
-                >
+                <button type="button" onClick={closeQuiz} className="btn-primary" style={{ width: '100%' }}>
                   Close
                 </button>
               </div>

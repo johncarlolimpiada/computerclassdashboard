@@ -1,6 +1,5 @@
 :root {
   --background-image: url('https://i.imgur.com/G20z4MI.jpg');
-  --font-family: 'Inter', system-ui, sans-serif;
   --text-primary: #ffffff;
   --text-secondary: rgba(255, 255, 255, 0.7);
   --glass-bg: rgba(20, 20, 20, 0.5);
@@ -9,6 +8,25 @@
   --glass-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
   --backdrop-blur: blur(12px);
   --accent-color: #6366f1;
+  --accent-hover: #4f46e5;
+  --surface: rgba(20, 20, 20, 0.5);
+  --surface-elevated: rgba(30, 30, 30, 0.95);
+  --success: #22c55e;
+  --success-muted: rgba(34, 197, 94, 0.2);
+  --danger: #ef4444;
+  --danger-muted: rgba(239, 68, 68, 0.5);
+  --brand-secondary: #818cf8;
+  --banner-bg: #24244b;
+  --banner-border: #797be9;
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --radius-panel: 12px;
+  --radius-control: 8px;
+  --radius-pill: 50px;
+  --header-min-height: 3.5rem;
 }
 
 * {
@@ -18,13 +36,9 @@
 }
 
 body {
-  font-family: var(--font-family);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
   color: var(--text-primary);
-  background-image: var(--background-image);
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-  background-repeat: no-repeat;
+  background-color: #141414;
   min-height: 100vh;
   margin: 0;
 }
@@ -34,6 +48,22 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 600;
 }
 
+.app-page {
+  color: var(--text-primary);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* Glassmorphism Utilities */
 .glass-panel {
   background: var(--glass-bg);
@@ -41,7 +71,7 @@ h1, h2, h3, h4, h5, h6 {
   -webkit-backdrop-filter: var(--backdrop-blur);
   border: 1px solid var(--glass-border);
   box-shadow: var(--glass-shadow);
-  border-radius: 12px;
+  border-radius: var(--radius-panel);
 }
 
 .glass-card {
@@ -50,7 +80,7 @@ h1, h2, h3, h4, h5, h6 {
   -webkit-backdrop-filter: var(--backdrop-blur);
   border: 1px solid var(--glass-border);
   box-shadow: var(--glass-shadow);
-  border-radius: 12px;
+  border-radius: var(--radius-panel);
   transition: all 0.3s ease;
 }
 
@@ -64,7 +94,7 @@ h1, h2, h3, h4, h5, h6 {
   background-color: var(--accent-color);
   color: white;
   padding: 0.75rem 1.5rem;
-  border-radius: 8px;
+  border-radius: var(--radius-control);
   border: none;
   font-weight: 600;
   cursor: pointer;
@@ -73,10 +103,132 @@ h1, h2, h3, h4, h5, h6 {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  font-family: inherit;
+  font-size: inherit;
+  text-decoration: none;
 }
 
 .btn-primary:hover {
-  background-color: #4f46e5;
+  background-color: var(--accent-hover);
+}
+
+.btn-primary:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-control);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: inherit;
+  font-size: inherit;
+  text-decoration: none;
+}
+
+.btn-secondary:hover {
+  background-color: rgba(255, 255, 255, 0.28);
+}
+
+.btn-danger {
+  background-color: var(--danger-muted);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-control);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.btn-danger:hover {
+  background-color: rgba(239, 68, 68, 0.65);
+}
+
+.btn-ghost {
+  background: transparent;
+  border: none;
+  color: var(--brand-secondary);
+  cursor: pointer;
+  padding: 0.35rem;
+  border-radius: var(--radius-control);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-ghost-danger {
+  background: transparent;
+  border: none;
+  color: #ff4d4d;
+  cursor: pointer;
+  padding: 0.35rem;
+  border-radius: var(--radius-control);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 0.25rem;
+  border-radius: var(--radius-control);
+}
+
+.profile-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.25rem 0.75rem 0.25rem 0.25rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.profile-chip img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.header-bar {
+  padding: var(--space-lg);
+  margin-bottom: var(--space-xl);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+}
+
+.header-bar h1 {
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible,
+.btn-danger:focus-visible,
+.icon-btn:focus-visible,
+.input-field:focus-visible,
+.category-header:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 2px;
 }
 
 .input-field {
@@ -84,7 +236,7 @@ h1, h2, h3, h4, h5, h6 {
   padding: 0.75rem;
   background: rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 8px;
+  border-radius: var(--radius-control);
   color: white;
   font-family: inherit;
   margin-top: 0.5rem;
@@ -105,29 +257,130 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--text-secondary);
 }
 
-/* Category Headers */
+.text-link {
+  color: var(--brand-secondary);
+  font-weight: 600;
+}
+
+.text-link-muted {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.btn-toolbar {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text-primary);
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-control);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.btn-toolbar:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+/* Category accordion */
 .category-header {
+  width: 100%;
   padding: 1rem 1.5rem;
   display: flex;
   align-items: center;
   cursor: pointer;
-  border-radius: 8px;
-  margin-bottom: 1rem;
+  border-radius: 0;
+  margin-bottom: 0;
   font-size: 1.125rem;
   font-weight: 600;
-  color: #111; /* Dark text for bright category headers */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s;
+  color: #111;
+  box-shadow: none;
+  transition: transform 0.2s, background 0.2s;
+  border: none;
+  text-align: left;
+  font-family: inherit;
 }
 
 .category-header:hover {
-  transform: scale(1.01);
+  transform: scale(1.005);
 }
 
 .category-content {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1.5rem;
-  margin-bottom: 2rem;
-  padding: 0 1rem;
+  margin-bottom: 0;
+  padding: 1rem;
+}
+
+.login-card {
+  width: 100%;
+  padding: 3rem 2rem;
+  text-align: center;
+}
+
+.login-title {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--brand-secondary);
+  text-shadow: 0 0 10px rgba(129, 140, 248, 0.3);
+}
+
+.login-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(99, 102, 241, 0.25);
+  border: 1px solid rgba(99, 102, 241, 0.45);
+  padding: 0.5rem 1.25rem;
+  border-radius: var(--radius-control);
+  color: #c7d2fe;
+  font-size: 0.85rem;
+  margin-bottom: 3rem;
+}
+
+.login-error {
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  color: #ff8a8a;
+  padding: 0.75rem;
+  border-radius: var(--radius-control);
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+}
+
+.google-signin-btn {
+  width: 100%;
+  background-color: #1d4ed8;
+  border: none;
+  border-radius: 4px;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  font-family: inherit;
+}
+
+.google-signin-btn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.google-signin-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+@media (max-width: 640px) {
+  .header-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .header-bar h1 {
+    font-size: 1.15rem;
+    text-align: center;
+  }
 }

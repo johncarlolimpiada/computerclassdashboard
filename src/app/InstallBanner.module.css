@@ -2,9 +2,9 @@
   margin-bottom: 1rem;
   padding: 1rem;
   color: #fff;
-  background: #24244b;
-  border: 1px solid #797be9;
-  border-radius: 12px;
+  background: var(--banner-bg);
+  border: 1px solid var(--banner-border);
+  border-radius: var(--radius-panel);
 }
 
 .row { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
@@ -12,8 +12,8 @@
 .copy { flex: 1; min-width: 150px; }
 .title { font-weight: 600; line-height: 1.4; }
 .subtitle { margin-top: 0.25rem; color: #dddff7; font-size: 0.875rem; }
-.action, .dismiss { min-height: 44px; border: 0; border-radius: 8px; cursor: pointer; font: inherit; }
-.action { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.65rem 1rem; background: #e0e7ff; color: #24244b; font-weight: 600; }
+.action, .dismiss { min-height: 44px; border: 0; border-radius: var(--radius-control); cursor: pointer; font: inherit; }
+.action { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.65rem 1rem; background: #e0e7ff; color: var(--banner-bg); font-weight: 600; }
 .action:hover { background: #fff; }
 .action:disabled { opacity: 0.7; cursor: wait; }
 .dismiss { display: grid; place-items: center; width: 44px; background: transparent; color: #fff; }

@@ -3,6 +3,9 @@ import { updateBackground, addCategory, addApp, deleteApp, deleteCategory, updat
 import { Settings, Category, AppLink } from '@/types'
 import Link from 'next/link'
 import AdminClient from './AdminClient'
+import AppShell from '../AppShell'
+import BackgroundSettingsForm from './BackgroundSettingsForm'
+import styles from './admin.module.css'
 
 export default async function AdminPage() {
   const supabase = await createClient()
@@ -18,40 +21,69 @@ export default async function AdminPage() {
     if (profile?.role === 'admin') isAdmin = true
   }
 
-  if (!isAdmin) return <div className="glass-panel" style={{ padding: '2rem', margin: '2rem' }}>Access Denied. Admins only.</div>
+  if (!isAdmin) {
+    return (
+      <AppShell variant="wide">
+        <div className="glass-panel" style={{ padding: '2rem', margin: '2rem' }}>
+          Access Denied. Admins only.
+        </div>
+      </AppShell>
+    )
+  }
 
   const [{ data: settingsData }, { data: categoriesData }, { data: appsData }] = await Promise.all([
-    supabase.from('settings').select('*').limit(1).single(),
-    supabase.from('categories').select('*').order('order_idx', { ascending: true }),
-    supabase.from('apps').select('*').order('order_idx', { ascending: true }),
+    supabase.from('settings').select('background_url').limit(1).single(),
+    supabase
+      .from('categories')
+      .select('id, title, color, order_idx')
+      .order('order_idx', { ascending: true }),
+    supabase
+      .from('apps')
+      .select('id, category_id, title, description, url, icon_url, order_idx')
+      .order('order_idx', { ascending: true }),
   ])
 
+  const settings = settingsData as Settings | null
+
   return (
-    <div style={{ padding: '2rem 1rem', maxWidth: '1000px', margin: '0 auto' }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-         <h1 style={{ textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>Admin Dashboard</h1>
-         <Link href="/" className="btn-primary" style={{ textDecoration: 'none' }}>Back to Home</Link>
+    <AppShell backgroundUrl={settings?.background_url} variant="wide">
+      <header className="header-bar glass-panel">
+        <h1>Admin Dashboard</h1>
+        <Link href="/" className="btn-secondary">
+          Back to Home
+        </Link>
       </header>
 
-      <div className="glass-panel" style={{ padding: '2rem', marginBottom: '2rem' }}>
+      <nav className={styles.subnav} aria-label="Admin sections">
+        <a href="#settings" className={styles.subnavLink}>
+          Settings
+        </a>
+        <a href="#categories" className={styles.subnavLink}>
+          Categories
+        </a>
+        <a href="#apps" className={styles.subnavLink}>
+          Apps
+        </a>
+      </nav>
+
+      <div id="settings" className={`glass-panel ${styles.section}`} style={{ padding: '2rem' }}>
         <h2>Dashboard Settings</h2>
-        <form action={updateBackground} style={{ marginTop: '1rem' }}>
-          <label className="form-label">Background Image URL</label>
-          <input name="backgroundUrl" type="url" className="input-field" defaultValue={settingsData?.background_url || ''} required />
-          <button type="submit" className="btn-primary" style={{ marginTop: '1rem' }}>Save Background</button>
-        </form>
+        <BackgroundSettingsForm
+          action={updateBackground}
+          defaultUrl={settings?.background_url || ''}
+        />
       </div>
 
-      <AdminClient 
-         categories={categoriesData as Category[]} 
-         apps={appsData as AppLink[]} 
-         addCategoryAction={addCategory} 
-         addAppAction={addApp}
-         deleteCategoryAction={deleteCategory}
-         deleteAppAction={deleteApp}
-         updateCategoryAction={updateCategory}
-         updateAppAction={updateApp}
+      <AdminClient
+        categories={(categoriesData as Category[]) || []}
+        apps={(appsData as AppLink[]) || []}
+        addCategoryAction={addCategory}
+        addAppAction={addApp}
+        deleteCategoryAction={deleteCategory}
+        deleteAppAction={deleteApp}
+        updateCategoryAction={updateCategory}
+        updateAppAction={updateApp}
       />
-    </div>
+    </AppShell>
   )
 }

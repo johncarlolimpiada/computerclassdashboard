@@ -1,0 +1,46 @@
+.shell {
+  position: relative;
+  min-height: 100vh;
+  padding: var(--space-xl) var(--space-md);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+}
+
+.inner {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.innerWide {
+  max-width: 1000px;
+}
+
+.innerNarrow {
+  max-width: 430px;
+}
+
+.centered {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: var(--space-md);
+}
+
+@media (max-width: 640px) {
+  .shell {
+    padding: var(--space-lg) var(--space-sm);
+    background-attachment: scroll;
+  }
+}
